@@ -1,0 +1,93 @@
+#include <stdio.h> 
+int main() 
+{ 
+	// P0, P1, P2, P3, P4 are the names of Process
+//Khai báo số tiến trình và tài nguyên:
+	int n, r, i, j, k; 
+	n = 5; // Số tiến trình: P0 đến P4
+	r = 3; // Số loại tài nguyên: A, B, C
+//Ma trận cấp phát hiện tại (alloc)
+	int alloc[5][3] = { { 0, 0, 1 }, // P0 // This is Allocation Matrix 
+						{ 3, 0, 0 }, // P1 
+						{ 1, 0, 1 }, // P2 
+						{ 2, 3, 2 }, // P3 
+						{ 0, 0, 3 } }; // P4 
+//Cho biết mỗi tiến trình đang giữ bao nhiêu tài nguyên của mỗi loại.
+
+//Ma trận yêu cầu tối đa (max)
+	int max[5][3] = { { 7, 6, 3 }, // P0 // MAX Matrix 
+					{ 3, 2, 2 }, // P1 
+					{ 8, 0, 2 }, // P2 
+					{ 2, 1, 2 }, // P3 
+					{ 5, 2, 4 } }; // P4 
+//Cho biết mỗi tiến trình có thể yêu cầu tối đa bao nhiêu tài nguyên.
+
+//Mảng tài nguyên còn lại (avail)
+	int avail[3] = { 2, 3, 2 }; // These are Available Resources 
+//Tài nguyên còn lại (chưa cấp phát) của từng loại.
+
+
+//Khởi tạo các biến cần thiết
+	int f[n], ans[n], ind = 0; 
+//f[]: đánh dấu tiến trình đã hoàn tất chưa (0 = chưa, 1 = đã xong).
+//ans[]: lưu trữ chuỗi tiến trình an toàn.
+//ind: chỉ số lưu vị trí hiện tại trong ans[].
+
+
+	for (k = 0; k < n; k++) { 
+		f[k] = 0; 
+	} //Tất cả tiến trình ban đầu đều chưa được thực hiện.
+
+//Tính ma trận NEED = MAX - ALLOC
+	int need[n][r]; 
+	for (i = 0; i < n; i++) { 
+		for (j = 0; j < r; j++) 
+			need[i][j] = max[i][j] - alloc[i][j]; 
+	} 
+//need[i][j]: số lượng tài nguyên j mà tiến trình i còn cần để hoàn tất.
+
+
+	int y = 0; 
+//Vòng lặp chính để kiểm tra trạng thái an toàn
+	for (k = 0; k < 5; k++) { 
+		for (i = 0; i < n; i++) { 
+			if (f[i] == 0) { 
+//Lặp tối đa n lần để kiểm tra tất cả tiến trình.
+
+
+//Kiểm tra nếu tiến trình có thể được cấp phát
+				int flag = 0; 
+				for (j = 0; j < r; j++) { 
+					if (need[i][j] > avail[j]){ 
+						flag = 1; 
+						break; 
+					} 
+				} 
+//Nếu tiến trình i yêu cầu nhiều hơn tài nguyên hiện có → không được cấp phát.
+
+				if (flag == 0) { 
+					ans[ind++] = i; // Lưu tiến trình vào chuỗi an toàn
+					for (y = 0; y < r; y++) 
+						avail[y] += alloc[i][y]; // Thu hồi tài nguyên sau khi tiến trình hoàn tất
+					f[i] = 1; // Đánh dấu đã hoàn tất
+				} 
+			} 
+		} 
+	} 
+//Cấp tài nguyên → tiến trình hoàn thành → thu hồi tài nguyên.
+
+
+//In chuỗi an toàn (SAFE sequence)
+// In kết quả:
+if (ind < n) {
+    printf("Hệ thống KHÔNG an toàn. Deadlock có thể xảy ra.\n");
+} else {
+    printf("Hệ thống AN TOÀN. Chuỗi an toàn là:\n");
+    for (i = 0; i < n - 1; i++) 
+        printf(" P%d ->", ans[i]); 
+    printf(" P%d\n", ans[n - 1]); 
+}
+
+
+} 
+// In ra thứ tự tiến trình có thể chạy để đảm bảo hệ thống an toàn.
